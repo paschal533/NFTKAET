@@ -1,0 +1,97 @@
+// ISC License
+
+@compiler >= 6
+
+include "List.aes"
+include "Option.aes"
+include "String.aes"
+
+contract NFTMarketplace =
+  // Events.
+  // MarketItemCreated(owner, price, token_id)
+  // ResellToken(owner, price, token_id)
+  datatype event 
+    = MarketItemCreated(address, int, int)
+    | ResellToken(address, int, int)
+    | BuyToken(address, int, int)
+
+  datatype metadata_type = URL | IPFS | OBJECT_ID | MAP
+  datatype metadata = MetadataIdentifier(string) | MetadataMap(map(string, string))
+    
+  record state = 
+    { name : string
+    , symbol : string
+    , owner: address
+    , idToMarketItem : map(int, marketItem)
+    , metadata: map(int, string)
+    , marketItemsList: list(marketItem)
+    , counter: int }
+
+  record marketItem = { 
+    tokenId : int,
+    seller : address,
+    owner : address,
+    price : int,
+    metadata_Url : string,
+    sold : bool}
+ 
+  stateful entrypoint init() = 
+        { name = "NFTKastle",
+          symbol = "NFK",
+          owner = Call.caller,
+          idToMarketItem = {},
+          metadata = {},
+          marketItemsList = [],
+          counter = 0 }
+
+
+  stateful entrypoint createToken(metadata : string, _price : int) : int =
+       
+       let market_Item : marketItem = {
+           tokenId = state.counter,
+           seller = Call.caller ,
+           owner = Contract.address,
+           price = _price,
+           metadata_Url = metadata,
+           sold = false}
+
+       let token_id = state.counter
+
+       let newMarketItem = state.marketItemsList ++ [market_Item]
+       put(state { marketItemsList = newMarketItem })
+ 
+       put(state{ counter = state.counter + 1  })
+       put(state{ metadata[token_id] = metadata })
+       put(state{ idToMarketItem[token_id] = market_Item })
+       Chain.event(MarketItemCreated(Contract.address, _price, token_id))
+       token_id
+
+  // Returns meta data associated with a token. 
+  entrypoint metadata(token_id: int) : string = 
+    state.metadata[token_id]
+  
+  // Returns a hardcoded list of all implemented extensions on the deployed contract.
+  entrypoint aex141_extensions() : list(string) =
+    ["mintable"]
+
+  stateful entrypoint resellToken(tokenId : int, price : int) =
+    require(state.idToMarketItem[tokenId].owner == Call.caller, "Only item owner can perform this operation")
+
+    put(state{ idToMarketItem[tokenId].sold = false })
+    put(state{ idToMarketItem[tokenId].price = price })
+    put(state{ idToMarketItem[tokenId].seller = Call.caller })
+    put(state{ idToMarketItem[tokenId].owner = Contract.address })
+    Chain.event(ResellToken(Contract.address, price, tokenId))
+
+  payable stateful entrypoint buyToken(tokenId : int) =
+    let price = state.idToMarketItem[tokenId].price
+    require(Call.value == price, "Please submit the asking price in order to complete the purchase")
+
+    Chain.spend(state.idToMarketItem[tokenId].seller, Call.value)
+    put(state{ idToMarketItem[tokenId].sold = true })
+    put(state{ idToMarketItem[tokenId].owner = Call.caller })
+    put(state{ idToMarketItem[tokenId].seller = Contract.address })
+    Chain.event(BuyToken(state.idToMarketItem[tokenId].owner, price, tokenId))
+    
+  entrypoint fetchMarketItems() : list(marketItem) =
+    state.marketItemsList
