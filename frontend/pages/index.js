@@ -10,7 +10,7 @@ import images from '../assets';
 import { makeid } from '../utils/makeId';
 
 const Home = () => {
-  const { fetchNFTs } = useContext(NFTContext);
+  const { fetchNFTs, contract } = useContext(NFTContext);
   const [nfts, setNfts] = useState([]);
   const [nftsCopy, setNftsCopy] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,16 +23,15 @@ const Home = () => {
   const { theme } = useTheme();
 
   useEffect(() => {
-    fetchNFTs()
+    if(contract){
+      fetchNFTs()
       .then((items) => {
-        //setNfts(items);
-        console.log(items);
+        setNfts(items);
         setNftsCopy(items);
         setIsLoading(false);
       });
-  }, []);
-
-  console.log(nfts);
+    }
+  }, [contract]);
 
   useEffect(() => {
     const sortedNfts = [...nfts];
@@ -100,7 +99,7 @@ const Home = () => {
     };
   });
 
-  const creators = [] //getCreators(nfts);
+  const creators = getCreators(nfts);
 
   return (
     <div className="flex justify-center sm:px-4 p-12">
@@ -162,19 +161,6 @@ const Home = () => {
               </div>
               <div className="mt-3 w-full flex flex-wrap justify-start md:justify-center">
                 {nfts.map((nft) => <NFTCard key={nft.tokenId} nft={nft} />)}
-                {/* {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
-                  <NFTCard
-                    key={`nft-${i}`}
-                    nft={{
-                      i,
-                      name: `Nifty NFT ${i}`,
-                      price: (10 - i * 0.534).toFixed(2),
-                      seller: `0x${makeid(3)}...${makeid(4)}`,
-                      owner: `0x${makeid(3)}...${makeid(4)}`,
-                      description: 'Cool NFT on Sale',
-                    }}
-                  />
-                ))} */}
               </div>
             </div>
           </>

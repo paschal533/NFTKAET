@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { AeSdk, Node, AE_AMOUNT_FORMATS } from "@aeternity/aepp-sdk";
+import { iniSDK } from "../utils/aeternity.ts";
 import axios from 'axios';
 
 import { MarketAddress, MarketAddressACI } from './constants';
@@ -18,23 +19,15 @@ export const NFTProvider = ({ children }) => {
     try {
       setIsLoadingNFT(false);
 
-      const data = await contract.fetchMarketItems();
-
       const { decodedResult } = await contract.fetchMarketItems()
 
-      console.log(data)
-
-      console.log(decodedResult)
-
-      /*const items = await Promise.all(data.map(async ({ tokenId, seller, owner, price: unformattedPrice }) => {
-        const tokenURI = await contract.tokenURI(tokenId);
-        const { data: { image, name, description } } = await axios.get(tokenURI);
-        const price = ethers.utils.formatUnits(unformattedPrice.toString(), 'ether');
-
-        return { price, tokenId: tokenId.toNumber(), id: tokenId.toNumber(), seller, owner, image, name, description, tokenURI };
+      const items = await Promise.all(decodedResult.map(async ({ metadata_Url, tokenId, seller, owner, price }) => {
+        const { data: { image, name, description } } = await axios.get(metadata_Url);
+  
+        return { price : Number(price), tokenId: Number(tokenId), seller, owner, image, name, description, metadata_Url };
       }));
 
-      return items;*/
+      return items;
     } catch (error) {
       console.log(error);
     }
@@ -73,15 +66,16 @@ export const NFTProvider = ({ children }) => {
       });
 
       setBalance(_balance);
-      toast({
+      /*toast({
         position: "top-left",
         title: "Wallet connect",
         description: "Wallet connected successfully ",
         status: "success",
         duration: 9000,
         isClosable: true,
-      });
+      });*/
     } catch (error) {
+      alert(error)
       console.log(error);
       /*toast({
         position: "top-left",
@@ -105,28 +99,36 @@ export const NFTProvider = ({ children }) => {
     const { decodedResult } = await contract.fetchMarketItems()
 
     console.log(decodedResult)
-    /*const data = type === 'fetchItemsListed' ? await contract.fetchItemsListed() : await contract.fetchMyNFTs();
 
-    const items = await Promise.all(data.map(async ({ tokenId, seller, owner, price: unformattedPrice }) => {
-      const tokenURI = await contract.tokenURI(tokenId);
-      const { data: { image, name, description } } = await axios.get(tokenURI);
-      const price = ethers.utils.formatUnits(unformattedPrice.toString(), 'ether');
+    try{
+      const items = await Promise.all(decodedResult.map(async ({ metadata_Url, tokenId, seller, owner, price }) => {
+        const { data: { image, name, description } } = await axios.get(metadata_Url);
+  
+        return { price: price.toNumber(), tokenId: tokenId.toNumber(), seller, owner, image, name, description, metadata_Url };
+      }));
 
-      return { price, tokenId: tokenId.toNumber(), seller, owner, image, name, description, tokenURI };
-    }));
+      console.log(items)
 
-    return items;*/
+    }catch(error){
+      console.log(error)
+    }
+
   };
 
   const createSale = async (url, formInputPrice, isReselling, id) => {
+    try {
+      setIsLoadingNFT(true);
 
-    const transaction = !isReselling
-      ? await contract.createToken(url, Number(formInputPrice), { onAccount: account })
-      : await contract.resellToken(id, Number(formInputPrice), { onAccount: account });
+      const transaction = !isReselling
+        ? await contract.createToken(url, Number(formInputPrice), { onAccount: account })
+        : await contract.resellToken(id, Number(formInputPrice), { onAccount: account });
 
-    setIsLoadingNFT(true);
+      console.log(transaction)
+      setIsLoadingNFT(false);
 
-    console.log(transaction)
+    }catch(error){
+      console.log(error);
+    }
   };
 
   const buyNft = async (nft) => {
@@ -141,7 +143,7 @@ export const NFTProvider = ({ children }) => {
 
 
   return (
-    <NFTContext.Provider value={{ nftCurrency, buyNft, createSale, fetchNFTs, fetchMyNFTsOrCreatedNFTs, connectWallet, currentAccount, isLoadingNFT }}>
+    <NFTContext.Provider value={{ nftCurrency, buyNft, contract, createSale, fetchNFTs, fetchMyNFTsOrCreatedNFTs, connectWallet, currentAccount, isLoadingNFT }}>
       {children}
     </NFTContext.Provider>
   );

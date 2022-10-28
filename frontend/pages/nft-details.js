@@ -26,13 +26,13 @@ const PaymentBodyCmp = ({ nft, nftCurrency }) => (
       </div>
 
       <div>
-        <p className="font-poppins dark:text-white text-nft-black-1 text-sm minlg:text-xl font-normal">{nft.price} <span className="font-semibold">{nftCurrency}</span></p>
+        <p className="font-poppins dark:text-white text-nft-black-1 text-sm minlg:text-xl font-normal">{Number(nft.price)} <span className="font-semibold">{nftCurrency}</span></p>
       </div>
     </div>
 
     <div className="flexBetween mt-10">
       <p className="font-poppins dark:text-white text-nft-black-1 font-semibold text-base minlg:text-xl">Total</p>
-      <p className="font-poppins dark:text-white text-nft-black-1 text-base minlg:text-xl font-normal">{nft.price} <span className="font-semibold">{nftCurrency}</span></p>
+      <p className="font-poppins dark:text-white text-nft-black-1 text-base minlg:text-xl font-normal">{Number(nft.price)} <span className="font-semibold">{nftCurrency}</span></p>
     </div>
   </div>
 );
@@ -125,7 +125,7 @@ const AssetDetails = () => {
               )
               : (
                 <Button
-                  btnName={`Buy for ${nft.price} ${nftCurrency}`}
+                  btnName={`Buy for ${Number(nft.price)} ${nftCurrency}`}
                   btnType="primary"
                   classStyles="mr-5 sm:mr-0 sm:mb-5 rounded-xl"
                   handleClick={() => setPaymentModal(true)}
