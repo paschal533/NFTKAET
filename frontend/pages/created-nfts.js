@@ -24,7 +24,7 @@ const CreatorDashboard = () => {
     );
   }
 
-  if (!isLoading && nfts.length === 0) {
+  if (!isLoading && nfts[0] === undefined) {
     return (
       <div className="flexCenter sm:p-4 p-16 min-h-screen">
         <h1 className="font-poppins dark:text-white text-nft-black-1 text-3xl font-extrabold">No NFTs Listed for Sale</h1>

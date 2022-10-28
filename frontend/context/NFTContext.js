@@ -27,6 +27,8 @@ export const NFTProvider = ({ children }) => {
         return { price : Number(price), tokenId: Number(tokenId), seller, owner, image, name, description, metadata_Url };
       }));
 
+      console.log(items)
+
       return items;
     } catch (error) {
       console.log(error);
@@ -98,16 +100,28 @@ export const NFTProvider = ({ children }) => {
 
     const { decodedResult } = await contract.fetchMarketItems()
 
-    console.log(decodedResult)
-
     try{
-      const items = await Promise.all(decodedResult.map(async ({ metadata_Url, tokenId, seller, owner, price }) => {
-        const { data: { image, name, description } } = await axios.get(metadata_Url);
+      if(type === 'fetchItemsListed'){
+        const items = await Promise.all(decodedResult.map(async ({ metadata_Url, tokenId, seller, owner, price }) => {
+          if(seller === currentAccount){
+            const { data: { image, name, description } } = await axios.get(metadata_Url);
+    
+            return { price : Number(price), tokenId: Number(tokenId), seller, owner, image, name, description, metadata_Url };
+          }
+        }));
   
-        return { price: price.toNumber(), tokenId: tokenId.toNumber(), seller, owner, image, name, description, metadata_Url };
-      }));
-
-      console.log(items)
+      return items;
+      }else{
+        const items = await Promise.all(decodedResult.map(async ({ metadata_Url, tokenId, seller, owner, price }) => {
+          if(owner === currentAccount){
+            const { data: { image, name, description } } = await axios.get(metadata_Url);
+    
+            return { price : Number(price), tokenId: Number(tokenId), seller, owner, image, name, description, metadata_Url };
+          }
+        }));
+  
+        return items;
+      }
 
     }catch(error){
       console.log(error)

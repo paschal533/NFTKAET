@@ -82,7 +82,7 @@ const MyNFTs = () => {
         </div>
       </div>
 
-      {(!isLoading && nfts.length === 0) ? (
+      {(!isLoading && nfts[0] === undefined) ? (
         <div className="flexCenter sm:p-4 p-16">
           <h1 className="font-poppins dark:text-white text-nft-black-1 text-3xl font-extrabold">No NFTs owned</h1>
         </div>
