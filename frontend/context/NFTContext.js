@@ -147,7 +147,7 @@ export const NFTProvider = ({ children }) => {
 
   const buyNft = async (nft) => {
     try {
-      //setIsLoadingNFT(true);
+      setIsLoadingNFT(true);
       console.log(nft.tokenId)
       await contract.buyToken(nft.tokenId, { onAccount: account, amount: Number(nft.price) });
       setIsLoadingNFT(false);
