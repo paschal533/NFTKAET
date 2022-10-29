@@ -149,7 +149,7 @@ export const NFTProvider = ({ children }) => {
     try {
       setIsLoadingNFT(true);
       console.log(nft.tokenId)
-      await contract.buyToken(nft.tokenId, { onAccount: account, amount: Number(nft.price) });
+      //await contract.buyToken(nft.tokenId, { onAccount: account, amount: Number(nft.price) });
       setIsLoadingNFT(false);
     } catch (error) {
       alert("You do not have sufficient money on your wallet to purchase this NFT. ");
