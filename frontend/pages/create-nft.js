@@ -9,8 +9,8 @@ import { NFTContext } from "../context/NFTContext";
 import { Button, Input, Loader } from "../components";
 import images from "../assets";
 
-const projectId = "2DDzpkkNIe0TRCUl1JOgmfLNUuq"; //process.env.NEXT_PUBLIC_INFURA_IPFS_PROJECT_ID;
-const projectSecret = "1745105a3e72ab779c26672e8e14f1a0"; //process.env.NEXT_PUBLIC_INFURA_IPFS_PROJECT_SECRET;
+const projectId = process.env.NEXT_PUBLIC_INFURA_IPFS_PROJECT_ID;
+const projectSecret = process.env.NEXT_PUBLIC_INFURA_IPFS_PROJECT_SECRET;
 const projectIdAndSecret = `${projectId}:${projectSecret}`;
 
 const client = ipfsHttpClient({
