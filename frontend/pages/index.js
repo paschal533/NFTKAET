@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useContext } from "react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
+import Head from "next/head";
 
 import { CreatorCard, NFTCard, Loader, SearchBar, Banner } from "../components";
 import { NFTContext } from "../context/NFTContext";
@@ -105,6 +106,7 @@ const Home = () => {
 
   return (
     <div className="flex justify-center sm:px-4 p-12">
+      <Head>Home | NFTKAET</Head>
       <div className="w-full minmd:w-4/5">
         <Banner
           name={
