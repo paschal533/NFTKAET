@@ -1,4 +1,4 @@
-# CryptoKet 
+# CryptoKet
 
 CryptoKet is a NFT marketplace where users can mint their pictures as NFT, list their NFTs for sale, and as well buy NFTs from other user.
 
@@ -26,6 +26,7 @@ CryptoKet is a NFT marketplace where users can mint their pictures as NFT, list 
 - ERC-721 standard
 
 # ⚙ Requirements For Initial Setup
+
 - Install NodeJS, should work with any node version below 16.5.0
 - Install Hardhat, In your terminal, you can check to see if you have Hardhat by running Hardhat version. To install Hardhat `npm i hardhat`. Ideal to have hardhat version 5.4 to avoid dependency issues.
 
@@ -36,11 +37,12 @@ CryptoKet is a NFT marketplace where users can mint their pictures as NFT, list 
 ```
 https://github.com/paschal533/NFT-Marketplace-CryptoKet.git
 ```
+
 💿 Install all dependencies:
- 
+
 ```
 $ cd NFT-Marketplace-CryptoKet
-$ npm install 
+$ npm install
 ```
 
 # 🚴‍♂️ Run your App:

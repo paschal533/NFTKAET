@@ -1,6 +1,6 @@
-import Image from 'next/image';
+import Image from "next/image";
 
-import images from '../assets';
+import images from "../assets";
 
 const Loader = () => (
   <div className="flexCenter w-full my-4">

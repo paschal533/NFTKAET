@@ -1,35 +1,48 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import { AeSdk, Node, AE_AMOUNT_FORMATS } from "@aeternity/aepp-sdk";
 import { iniSDK } from "../utils/aeternity.ts";
-import axios from 'axios';
-import { useToast } from '@chakra-ui/react'
+import axios from "axios";
+import { useToast } from "@chakra-ui/react";
 
-
-import { MarketAddress, MarketAddressACI } from './constants';
+import { MarketAddress, MarketAddressACI } from "./constants";
 
 export const NFTContext = React.createContext();
 
 export const NFTProvider = ({ children }) => {
-  const nftCurrency = 'AE';
+  const nftCurrency = "AE";
   const [isLoadingNFT, setIsLoadingNFT] = useState(false);
   const [currentAccount, setCurrentAccount] = useState("");
   const [account, setAccount] = useState(null);
   const [contract, setContract] = useState(null);
   const [balance, setBalance] = useState("");
-  const toast = useToast()
-
+  const toast = useToast();
 
   const fetchNFTs = async () => {
     try {
       setIsLoadingNFT(false);
 
-      const { decodedResult } = await contract.fetchMarketItems()
+      const { decodedResult } = await contract.fetchMarketItems();
 
-      const items = await Promise.all(decodedResult.map(async ({ metadata_Url, tokenId, seller, owner, price }) => {
-        const { data: { image, name, description } } = await axios.get(metadata_Url);
-  
-        return { price : Number(price), tokenId: Number(tokenId), seller, owner, image, name, description, metadata_Url };
-      }));
+      const items = await Promise.all(
+        decodedResult.map(
+          async ({ metadata_Url, tokenId, seller, owner, price }) => {
+            const {
+              data: { image, name, description },
+            } = await axios.get(metadata_Url);
+
+            return {
+              price: Number(price),
+              tokenId: Number(tokenId),
+              seller,
+              owner,
+              image,
+              name,
+              description,
+              metadata_Url,
+            };
+          }
+        )
+      );
 
       return items;
     } catch (error) {
@@ -100,35 +113,63 @@ export const NFTProvider = ({ children }) => {
   const fetchMyNFTsOrCreatedNFTs = async (type) => {
     setIsLoadingNFT(false);
 
-    const { decodedResult } = await contract.fetchMarketItems()
+    const { decodedResult } = await contract.fetchMarketItems();
 
-    try{
-      if(type === 'fetchItemsListed'){
-        const items = await Promise.all(decodedResult.map(async ({ metadata_Url, tokenId, seller, owner, price }) => {
-          if(seller === currentAccount){
-            const { data: { image, name, description } } = await axios.get(metadata_Url);
-    
-            return { price : Number(price), tokenId: Number(tokenId), seller, owner, image, name, description, metadata_Url };
-          }
-        }));
-  
-      return items;
-      }else{
-        const items = await Promise.all(decodedResult.map(async ({ metadata_Url, tokenId, seller, owner, price }) => {
-          if(owner === currentAccount){
-            const { data: { image, name, description } } = await axios.get(metadata_Url);
-    
-            return { price : Number(price), tokenId: Number(tokenId), seller, owner, image, name, description, metadata_Url };
-          }
-        }));
-  
+    try {
+      if (type === "fetchItemsListed") {
+        const items = await Promise.all(
+          decodedResult.map(
+            async ({ metadata_Url, tokenId, seller, owner, price }) => {
+              if (seller === currentAccount) {
+                const {
+                  data: { image, name, description },
+                } = await axios.get(metadata_Url);
+
+                return {
+                  price: Number(price),
+                  tokenId: Number(tokenId),
+                  seller,
+                  owner,
+                  image,
+                  name,
+                  description,
+                  metadata_Url,
+                };
+              }
+            }
+          )
+        );
+
+        return items;
+      } else {
+        const items = await Promise.all(
+          decodedResult.map(
+            async ({ metadata_Url, tokenId, seller, owner, price }) => {
+              if (owner === currentAccount) {
+                const {
+                  data: { image, name, description },
+                } = await axios.get(metadata_Url);
+
+                return {
+                  price: Number(price),
+                  tokenId: Number(tokenId),
+                  seller,
+                  owner,
+                  image,
+                  name,
+                  description,
+                  metadata_Url,
+                };
+              }
+            }
+          )
+        );
+
         return items;
       }
-
-    }catch(error){
-      console.log(error)
+    } catch (error) {
+      console.log(error);
     }
-
   };
 
   const createSale = async (url, formInputPrice, isReselling, id) => {
@@ -136,13 +177,16 @@ export const NFTProvider = ({ children }) => {
       setIsLoadingNFT(true);
 
       const transaction = !isReselling
-        ? await contract.createToken(url, Number(formInputPrice), { onAccount: account })
-        : await contract.resellToken(id, Number(formInputPrice), { onAccount: account });
+        ? await contract.createToken(url, Number(formInputPrice), {
+            onAccount: account,
+          })
+        : await contract.resellToken(id, Number(formInputPrice), {
+            onAccount: account,
+          });
 
-      console.log(transaction)
+      console.log(transaction);
       setIsLoadingNFT(false);
-
-    }catch(error){
+    } catch (error) {
       console.log(error);
     }
   };
@@ -150,24 +194,39 @@ export const NFTProvider = ({ children }) => {
   const buyNft = async (nft) => {
     try {
       setIsLoadingNFT(true);
-      await contract.buyToken(nft.tokenId, { onAccount: account, amount: Number(nft.price) });
+      await contract.buyToken(nft.tokenId, {
+        onAccount: account,
+        amount: Number(nft.price),
+      });
       setIsLoadingNFT(false);
     } catch (error) {
-       console.log(error)
-       toast({
+      console.log(error);
+      toast({
         position: "top-left",
         title: "Insufficient balance",
-        description: "You don not have sufficient balance to complete this transaction",
+        description:
+          "You don not have sufficient balance to complete this transaction",
         status: "error",
         duration: 9000,
         isClosable: true,
       });
-    };
-  }
-
+    }
+  };
 
   return (
-    <NFTContext.Provider value={{ nftCurrency, buyNft, contract, createSale, fetchNFTs, fetchMyNFTsOrCreatedNFTs, connectWallet, currentAccount, isLoadingNFT }}>
+    <NFTContext.Provider
+      value={{
+        nftCurrency,
+        buyNft,
+        contract,
+        createSale,
+        fetchNFTs,
+        fetchMyNFTsOrCreatedNFTs,
+        connectWallet,
+        currentAccount,
+        isLoadingNFT,
+      }}
+    >
       {children}
     </NFTContext.Provider>
   );
