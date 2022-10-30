@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { AeSdk, Node, AE_AMOUNT_FORMATS } from "@aeternity/aepp-sdk";
 import { iniSDK } from "../utils/aeternity.ts";
 import axios from 'axios';
+import { useToast } from '@chakra-ui/react'
+
 
 import { MarketAddress, MarketAddressACI } from './constants';
 
@@ -14,6 +16,8 @@ export const NFTProvider = ({ children }) => {
   const [account, setAccount] = useState(null);
   const [contract, setContract] = useState(null);
   const [balance, setBalance] = useState("");
+  const toast = useToast()
+
 
   const fetchNFTs = async () => {
     try {
@@ -26,8 +30,6 @@ export const NFTProvider = ({ children }) => {
   
         return { price : Number(price), tokenId: Number(tokenId), seller, owner, image, name, description, metadata_Url };
       }));
-
-      console.log(items)
 
       return items;
     } catch (error) {
@@ -63,30 +65,30 @@ export const NFTProvider = ({ children }) => {
       setAccount(aeSdk);
       setCurrentAccount(_address);
 
-      const _balance = await aeSdk.getBalance(_address, {
-        format: AE_AMOUNT_FORMATS.AE,
-      });
-
-      setBalance(_balance);
-      /*toast({
+      toast({
         position: "top-left",
         title: "Wallet connect",
         description: "Wallet connected successfully ",
         status: "success",
         duration: 9000,
         isClosable: true,
-      });*/
+      });
+
+      const _balance = await aeSdk.getBalance(_address, {
+        format: AE_AMOUNT_FORMATS.AE,
+      });
+
+      setBalance(_balance);
     } catch (error) {
-      alert(error)
       console.log(error);
-      /*toast({
+      toast({
         position: "top-left",
         title: "Not Connected",
         description: "No SuperHero wallet found",
         status: "error",
         duration: 9000,
         isClosable: true,
-      });*/
+      });
     }
   };
 
@@ -151,9 +153,17 @@ export const NFTProvider = ({ children }) => {
       await contract.buyToken(nft.tokenId, { onAccount: account, amount: Number(nft.price) });
       setIsLoadingNFT(false);
     } catch (error) {
-      alert("You do not have sufficient money on your wallet to purchase this NFT. ");
-    }
-  };
+       console.log(error)
+       toast({
+        position: "top-left",
+        title: "Insufficient balance",
+        description: "You don not have sufficient balance to complete this transaction",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
+    };
+  }
 
 
   return (
